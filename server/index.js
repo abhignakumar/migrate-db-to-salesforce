@@ -83,7 +83,7 @@ app.get("/oauth/callback", async (req, res) => {
       response.data.access_token,
       response.data.instance_url
     );
-    res.redirect("http://localhost:5173");
+    res.redirect(process.env.FRONTEND_URL);
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).json({ message: "Token exchange failed" });
