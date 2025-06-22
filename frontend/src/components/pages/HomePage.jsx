@@ -23,9 +23,7 @@ export default function HomePage() {
   useEffect(() => {
     const isAuthenticated = async () => {
       try {
-        const reponse = await axios.get(
-          "http://localhost:3000/is-authenticated"
-        );
+        const reponse = await axios.get("/api/is-authenticated");
         if (!reponse.data.isAuthenticated) navigate("/login");
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -45,16 +43,12 @@ export default function HomePage() {
     setIsLoading(true);
     try {
       if (isBulkMode) {
-        const response = await axios.get(
-          "http://localhost:3000/sync-customers-bulk"
-        );
+        const response = await axios.get("/api/sync-customers-bulk");
         toast.success(response.data.message, {
           description: `Job ID: ${response.data.jobId}`,
         });
       } else {
-        const response = await axios.get(
-          "http://localhost:3000/sync-customers"
-        );
+        const response = await axios.get("/api/sync-customers");
         toast.success(response.data.message);
       }
     } catch (error) {

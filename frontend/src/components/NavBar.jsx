@@ -13,9 +13,7 @@ export function NavBar() {
   useEffect(() => {
     const isAuthenticated = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/is-authenticated"
-        );
+        const response = await axios.get("/api//is-authenticated");
         if (response.data.isAuthenticated) setIsLoggedIn(true);
         else setIsLoggedIn(false);
       } catch (error) {
@@ -32,7 +30,7 @@ export function NavBar() {
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/logout");
+      const response = await axios.get("/api/logout");
       toast.success(response.data.message);
       setTimeout(() => {
         window.location.reload();

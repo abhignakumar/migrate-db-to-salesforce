@@ -18,9 +18,7 @@ export default function LoginPage() {
   useEffect(() => {
     const isAuthenticated = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/is-authenticated"
-        );
+        const response = await axios.get("/api/is-authenticated");
         if (response.data.isAuthenticated) navigate("/");
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -38,7 +36,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/login");
+      const response = await axios.get("/api/login");
       window.location.href = response.data.authUrl;
     } catch (error) {
       if (axios.isAxiosError(error)) {
