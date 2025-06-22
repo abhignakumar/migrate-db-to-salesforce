@@ -7,12 +7,16 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { RefreshCw } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { cn } from "../../lib/utils";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const isAuthenticated = async () => {
       try {
@@ -23,10 +27,10 @@ export default function HomePage() {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.log("Axios Error: ", error);
-          alert(error.response.data.message || "Error");
+          toast.error(error.response.data.message || "Error");
         } else {
           console.log("Error: ", error);
-          alert("Error");
+          toast.error("Error");
         }
       }
     };
@@ -34,17 +38,22 @@ export default function HomePage() {
   }, []);
 
   const handleSync = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get("http://localhost:3000/sync-customers");
-      alert(response.data.message);
+      toast.success(response.data.message, {
+        description: `Job ID: ${response.data.jobId}`,
+      });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log("Axios Error: ", error);
-        alert(error.response.data.message || "Error");
+        toast.error(error.response.data.message || "Error");
       } else {
         console.log("Error: ", error);
-        alert("Error");
+        toast.error("Error");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,8 +68,12 @@ export default function HomePage() {
         </CardHeader>
         <CardContent>
           <div>
-            <Button className="w-full md:w-[200px]" onClick={handleSync}>
-              <RefreshCw />
+            <Button
+              className="w-full md:w-[200px]"
+              onClick={handleSync}
+              disabled={isLoading}
+            >
+              <RefreshCw className={cn({ "animate-spin": isLoading })} />
               Sync
             </Button>
           </div>

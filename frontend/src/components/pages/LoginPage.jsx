@@ -6,13 +6,15 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Button } from "../ui/button";
-import { LogIn } from "lucide-react";
-import { useEffect } from "react";
+import { Loader, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const isAuthenticated = async () => {
       try {
@@ -23,10 +25,10 @@ export default function LoginPage() {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.log("Axios Error: ", error);
-          alert(error.response.data.message || "Error");
+          toast.error(error.response.data.message || "Error");
         } else {
           console.log("Error: ", error);
-          alert("Error");
+          toast.error("Error");
         }
       }
     };
@@ -34,17 +36,20 @@ export default function LoginPage() {
   }, []);
 
   const handleLogin = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get("http://localhost:3000/login");
       window.location.href = response.data.authUrl;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log("Axios Error: ", error);
-        alert(error.response.data.message || "Error");
+        toast.error(error.response.data.message || "Error");
       } else {
         console.log("Error: ", error);
-        alert("Error");
+        toast.error("Error");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,8 +65,14 @@ export default function LoginPage() {
         <CardContent>
           <div>
             <Button className="w-full md:w-[200px]" onClick={handleLogin}>
-              <LogIn />
-              Login
+              {isLoading ? (
+                <Loader className="animate-spin" />
+              ) : (
+                <>
+                  <LogIn />
+                  Login
+                </>
+              )}
             </Button>
           </div>
         </CardContent>

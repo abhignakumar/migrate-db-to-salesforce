@@ -4,6 +4,7 @@ import HomePage from "./components/pages/HomePage";
 import LoginPage from "./components/pages/LoginPage";
 import { NavBar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         </div>
         <Footer />
       </div>
+      <Toaster richColors />
     </BrowserRouter>
   );
 }
