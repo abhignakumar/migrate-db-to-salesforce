@@ -12,10 +12,13 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   useEffect(() => {
     const isAuthenticated = async () => {
@@ -32,6 +35,7 @@ export default function HomePage() {
           console.log("Error: ", error);
           toast.error("Error");
         }
+        navigate("/login");
       }
     };
     isAuthenticated();
@@ -40,10 +44,19 @@ export default function HomePage() {
   const handleSync = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/sync-customers");
-      toast.success(response.data.message, {
-        description: `Job ID: ${response.data.jobId}`,
-      });
+      if (isBulkMode) {
+        const response = await axios.get(
+          "http://localhost:3000/sync-customers-bulk"
+        );
+        toast.success(response.data.message, {
+          description: `Job ID: ${response.data.jobId}`,
+        });
+      } else {
+        const response = await axios.get(
+          "http://localhost:3000/sync-customers"
+        );
+        toast.success(response.data.message);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log("Axios Error: ", error);
@@ -67,15 +80,24 @@ export default function HomePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div>
-            <Button
-              className="w-full md:w-[200px]"
-              onClick={handleSync}
-              disabled={isLoading}
-            >
-              <RefreshCw className={cn({ "animate-spin": isLoading })} />
-              Sync
-            </Button>
+          <div className="space-y-3">
+            <div>
+              <Button
+                className="w-full md:w-[200px]"
+                onClick={handleSync}
+                disabled={isLoading}
+              >
+                <RefreshCw className={cn({ "animate-spin": isLoading })} />
+                Sync
+              </Button>
+            </div>
+            <div className="flex gap-x-2 items-center">
+              <Switch
+                id="bulk-mode"
+                onCheckedChange={(value) => setIsBulkMode(value)}
+              />
+              <Label htmlFor="bulk-mode">Bulk Job Mode</Label>
+            </div>
           </div>
         </CardContent>
       </Card>

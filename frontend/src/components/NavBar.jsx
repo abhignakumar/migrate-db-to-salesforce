@@ -1,5 +1,5 @@
 import { SquareArrowUpRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -9,7 +9,6 @@ import { Loader, LogOut } from "lucide-react";
 export function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const isAuthenticated = async () => {
@@ -21,11 +20,9 @@ export function NavBar() {
         else setIsLoggedIn(false);
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.log("Axios Error: ", error);
-          toast.error(error.response.data.message || "Error");
+          console.log("[NavBar] Axios Error: ", error);
         } else {
-          console.log("Error: ", error);
-          toast.error("Error");
+          console.log("[NavBar] Error: ", error);
         }
       }
     };

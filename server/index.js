@@ -90,7 +90,7 @@ app.get("/oauth/callback", async (req, res) => {
   }
 });
 
-app.get("/sync-customers", async (req, res) => {
+app.get("/sync-customers-bulk", async (req, res) => {
   if (!accessToken || !instanceUrl) {
     res.status(500).json({ message: "accessToken or instanceUrl is null" });
     return;
@@ -163,6 +163,50 @@ app.get("/sync-customers", async (req, res) => {
   } catch (err) {
     console.error("Bulk API error:", err.response?.data || err.message);
     res.status(500).json({ message: "Failed to sync customers via bulk API" });
+  }
+});
+
+app.get("/sync-customers", async (req, res) => {
+  if (!accessToken || !instanceUrl) {
+    res.status(500).json({ message: "accessToken or instanceUrl is null" });
+    return;
+  }
+  let customers = [];
+  try {
+    const pool = await sql.connect(sqlConfig);
+    const result = await pool.request().query("SELECT * FROM Customer");
+    customers = result.recordset;
+    await pool.close();
+  } catch (error) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ message: "Error fetching customers from DB" });
+    return;
+  }
+  const customerPayload = {
+    records: customers.map((c, index) => ({
+      attributes: { type: "Account", referenceId: `ref${index}` },
+      Name: c.Name,
+      Phone: c.Phone,
+      BillingStreet: c.Address,
+      Email__c: c.Email,
+      ExternalId__c: c.CustomerID.toString(),
+    })),
+  };
+  try {
+    await axios.post(
+      `${instanceUrl}/services/data/v58.0/composite/tree/Account`,
+      customerPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    res.json({ message: "Successfully migrated the customers" });
+  } catch (err) {
+    console.error("Request error:", err.response?.data || err.message);
+    res.status(500).json({ message: "Failed to sync customers" });
   }
 });
 
